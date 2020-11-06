@@ -13,25 +13,25 @@
 
 const char* ssid     = STASSID;
 const char* password = STAPSK;
-const char* url = "https://api.openweathermap.org/data/2.5/weather?q=Kyiv&units=metric&appid=***";
+const char* url = "https://api.openweathermap.org/data/2.5/weather?q=Kyiv&units=metric&appid=83e8e8aaff2ad065a44e1cd558f1b0a9";
 const char* host = "https://api.openweathermap.org";
 
-GTimer myTimer(MS, 120000);
+GTimer myTimer(MS, 300000);
 WiFiClientSecure client;
 HTTPClient http; 
 DynamicJsonDocument doc(10000);
+char buffer[1000]={""};
   
 
 
 void setup() {
   Serial.begin(9600);
-  Serial.println();
-  Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {delay(500);}  
+  while (WiFi.status() != WL_CONNECTED) {delay(500);} 
+  ArduinoOTA.setHostname("mish_weather_st"); 
   ArduinoOTA.begin();
   doRequest();
 }
@@ -41,21 +41,14 @@ void setup() {
 void pretiPrint(String s){
   DeserializationError error = deserializeJson(doc, s);
   if (error) Serial.println("...");    
-  String w1=doc["weather"][0]["main"].as<String>();
+  String w1=doc["weather"][0]["description"].as<String>();
   String w2=doc["main"]["temp"].as<String>();
-  String w3=doc["main"]["pressure"].as<String>();
-  String w4=doc["wind"]["speed"].as<String>();
-  long timestm=doc["sys"]["sunset"].as<long>();
-  int h=hour(timestm)+2;
-  int m=minute(timestm);
-  
-  String s1=w1 + ", ";
-  String s2="temp: "+w2 +"C, ";
-  String s3=w3 +"Mbar, ";
-  String s4="wind: "+w4+"m/s, ";  
-  String s5="Sunset at:"+String(h)+":"+String(m)+" ";  
-  String res="Hi, Michael! Today we have "+ s1+s2+s3+s4+s5;
-  Serial.println(res);  
+  int pres=doc["main"]["pressure"].as<int>()*0.75;
+  String w3=doc["wind"]["speed"].as<String>();
+  long timestm=doc["sys"]["sunset"].as<long>();  
+  snprintf(buffer, sizeof(buffer), "Hi, Michael! Weather today is %s, temp %sC, wind %sm/s, %dmmHg, sunset at %d:%d \0", 
+  w1.c_str(), w2.c_str(), w3.c_str(), pres, hour(timestm)+2, minute(timestm));     
+  Serial.println(buffer);  
 }
 
 
@@ -63,8 +56,6 @@ void doRequest(){
   client.setInsecure();
   client.connect(host, 443);  
   if (http.begin(client, url)) {
-     //http.addHeader("x-rapidapi-key", "50681c346emsha4ad7c2b5963babp151b34jsne2dab573e283");
-     //http.addHeader("x-rapidapi-host", "community-open-weather-map.p.rapidapi.com");
      int httpCode = http.GET();      
       if (httpCode > 0) {        
         if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
