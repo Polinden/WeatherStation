@@ -2,6 +2,8 @@
 #include <ESP8266HTTPClient.h> 
 #include <ArduinoOTA.h>
 #include <GyverTimer.h>
+#include <TimeLib.h>
+#include <ArduinoJson.h>
 
 
 #ifndef STASSID
@@ -11,12 +13,13 @@
 
 const char* ssid     = STASSID;
 const char* password = STAPSK;
-const char* url = "https://api.openweathermap.org/data/2.5/weather?q=Kyiv&units=metric&appid=****";
+const char* url = "https://api.openweathermap.org/data/2.5/weather?q=Kyiv&units=metric&appid=***";
 const char* host = "https://api.openweathermap.org";
 
 GTimer myTimer(MS, 120000);
 WiFiClientSecure client;
 HTTPClient http; 
+DynamicJsonDocument doc(10000);
   
 
 
@@ -28,16 +31,7 @@ void setup() {
   Serial.println(ssid);
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
+  while (WiFi.status() != WL_CONNECTED) {delay(500);}  
   ArduinoOTA.begin();
   doRequest();
 }
@@ -45,22 +39,22 @@ void setup() {
 
 
 void pretiPrint(String s){
-  int i1 = s.indexOf("main")+7;
-  int i2 = s.indexOf("description")-3;
-  int i3 = s.indexOf("temp")+6;
-  int i4 = s.indexOf("feels_like")-2;
-  int i5 = s.indexOf("speed")+7;
-  int i6 = s.indexOf("deg")-2;
-  int i7 = s.indexOf("pressure")+10;
-  int i8 = s.indexOf("humidity")-2;
-
+  DeserializationError error = deserializeJson(doc, s);
+  if (error) Serial.println("...");    
+  String w1=doc["weather"][0]["main"].as<String>();
+  String w2=doc["main"]["temp"].as<String>();
+  String w3=doc["main"]["pressure"].as<String>();
+  String w4=doc["wind"]["speed"].as<String>();
+  long timestm=doc["sys"]["sunset"].as<long>();
+  int h=hour(timestm)+2;
+  int m=minute(timestm);
   
-  
-  String s1=s.substring(i1,i2) + ", ";
-  String s2="temp:" + s.substring(i3,i4)+"C, ";
-  String s3=s.substring(i7,i8)+"Mbar, ";
-  String s4="wind:" + s.substring(i5,i6)+"m/s ";  
-  String res="Kiev today, "+ s1+s2+s3+s4;
+  String s1=w1 + ", ";
+  String s2="temp: "+w2 +"C, ";
+  String s3=w3 +"Mbar, ";
+  String s4="wind: "+w4+"m/s, ";  
+  String s5="Sunset at:"+String(h)+":"+String(m)+" ";  
+  String res="Hi, Michael! Today we have "+ s1+s2+s3+s4+s5;
   Serial.println(res);  
 }
 
@@ -78,7 +72,7 @@ void doRequest(){
           pretiPrint(payload);
         }
       } else {
-        Serial.printf("GET... failed, error: %s\n", http.errorToString(httpCode).c_str());        
+        Serial.printf("Error: %s\n", http.errorToString(httpCode).c_str());        
       }
   }
   else Serial.println("No connection!");  
