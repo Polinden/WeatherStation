@@ -5,8 +5,8 @@
 
 ### We used electronic components:
 <ol>
-  <li>ESP32 <i>(Sketch Weather)</i></li>
-  <li>Arduino Nana <i>(sketch Matrix)</i></li>
+  <li>ESP-01 <i>(Sketch Weather)</i></li>
+  <li>Arduino Nano <i>(sketch Matrix)</i></li>
   <li>Led Matrix 4 pieces 8x8</li>
   <li>Cables, box, AC/DC...</li>
 </ol>
@@ -20,11 +20,11 @@
   <li>Alex Gyver's helper libs...</li>
 </ol>
 
-### Features:
+### Algorithm:
 <ol>
-  <li>GET from OpenWeather</li>
+  <li>GET request from OpenWeather</li>
   <li>Parse Json response</li>
-  <li>Async send from ESP to Nano </li>
+  <li>Async send the string from ESP to Nano </li>
   <li>Nano runs the ticker on LED Matrix</li>
 </ol>
 
