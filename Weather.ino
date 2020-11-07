@@ -6,21 +6,21 @@
 #include <ArduinoJson.h>
 
 
-#ifndef STASSID
-#define STASSID "***"
-#define STAPSK  "***"
-#endif
+#define STASSID "****"
+#define STAPSK  "****"
+#define CITY    "Kyiv"
+#define EVERY   300000
 
 const char* ssid     = STASSID;
 const char* password = STAPSK;
-const char* url = "https://api.openweathermap.org/data/2.5/weather?q=Kyiv&units=metric&appid=83e8e8aaff2ad065a44e1cd558f1b0a9";
+const char* url = "https://api.openweathermap.org/data/2.5/weather?q="CITY"&units=metric&appid=83e8e8aaff2ad065a44e1cd558f1b0a9";
 const char* host = "https://api.openweathermap.org";
 
-GTimer myTimer(MS, 300000);
+GTimer myTimer(MS, EVERY);
 WiFiClientSecure client;
 HTTPClient http; 
-DynamicJsonDocument doc(10000);
-char buffer[1000]={""};
+DynamicJsonDocument doc(2400);
+char buffer[500];
   
 
 
@@ -41,13 +41,15 @@ void setup() {
 void pretiPrint(String s){
   DeserializationError error = deserializeJson(doc, s);
   if (error) Serial.println("...");    
-  String w1=doc["weather"][0]["description"].as<String>();
-  String w2=doc["main"]["temp"].as<String>();
+  String w=doc["weather"][0]["description"].as<String>();
+  String n=doc["name"].as<String>();
+  float tem=doc["main"]["temp"].as<float>();
   int pres=doc["main"]["pressure"].as<int>()*0.75;
-  String w3=doc["wind"]["speed"].as<String>();
-  long timestm=doc["sys"]["sunset"].as<long>();  
-  snprintf(buffer, sizeof(buffer), "Hi, Michael! Weather today is %s, temp %sC, wind %sm/s, %dmmHg, sunset at %d:%d \0", 
-  w1.c_str(), w2.c_str(), w3.c_str(), pres, hour(timestm)+2, minute(timestm));     
+  float spe=doc["wind"]["speed"].as<float>();
+  int tzone=doc["timezone"].as<int>();  
+  long timestm=doc["sys"]["sunset"].as<long>()+tzone;  
+  snprintf(buffer, sizeof(buffer), "Hi, Michael! In %s today is %s, temp %.1fC, wind %.1fm/s, %dmmHg, sunset at %d:%d \0", 
+  n.c_str(), w.c_str(), tem, spe, pres, hour(timestm), minute(timestm));     
   Serial.println(buffer);  
 }
 
