@@ -23,8 +23,8 @@
 ### Algorithm:
 <ol>
   <li>ESP sends GET request to OpenWeather,</li>
-  <li>then Parse Json response,</li>
-  <li>then buitd and send the string to Nano. </li>
+  <li>then parses Json response,</li>
+  <li>then builds and sends the string to Nano. </li>
   <li>Nano reacts and runs a ticker on the LED Matrix</li>
 </ol>
 
