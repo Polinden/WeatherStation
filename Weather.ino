@@ -13,7 +13,7 @@
 
 const char* ssid     = STASSID;
 const char* password = STAPSK;
-const char* url = "https://api.openweathermap.org/data/2.5/weather?q="CITY"&units=metric&appid=83e8e8aaff2ad065a44e1cd558f1b0a9";
+const char* url = "https://api.openweathermap.org/data/2.5/weather?q="CITY"&units=metric&appid=****";
 const char* host = "https://api.openweathermap.org";
 
 GTimer myTimer(MS, EVERY);
