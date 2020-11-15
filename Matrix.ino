@@ -22,8 +22,8 @@ char dateNow[BUF_SIZE] = { "" };
 char newMessage[BUF_SIZE] = { "" };
 char daysOfTheWeek[7][4] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 bool newMessageAvailable = true;
-bool my_turn=true;
-GTimer gTimer1(MS, 5000);
+bool * my_turn;
+GTimer gTimer1(MS, 3000);
 GTimer gTimer2(MS, 60000);
 AltSoftSerial altser;
 
@@ -55,6 +55,13 @@ void readTime(void)
   snprintf(dateNow, strlen(dateNow), now.month(), now.month(), now.year(), daysOfTheWeek[now.dayOfTheWeek()], now.hour(), now.minute());
 }
 
+void switchShow(bool * t){
+    if (*t) P.displayText(dateNow, PA_CENTER, 100, 10, PA_SCROLL_DOWN, PA_SCROLL_UP)
+    else {
+      P.displayText(curMessage, PA_LEFT, 70, 0, PA_SCROLL_LEFT, PA_SCROLL_LEFT); 
+      *t=true;
+    }
+}
 
 void setup()
 {
@@ -62,9 +69,9 @@ void setup()
   altser.begin(9600);
   rtc.begin();
   P.begin();
-  P.displayText(curMessage, PA_LEFT, 70, 0, PA_SCROLL_LEFT, PA_SCROLL_LEFT);
   rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   readTime();
+  *my_turn=true;
 }
 
 
@@ -74,9 +81,7 @@ void loop()
 {
   if (P.displayAnimate())
   {
-    if (my_turn) P.displayText(dateNow, PA_CENTER, 100, 10, PA_SCROLL_DOWN, PA_SCROLL_UP)
-    else P.displayText(curMessage, PA_LEFT, 70, 0, PA_SCROLL_LEFT, PA_SCROLL_LEFT);      
-   
+    switchShow(my_turn);   
     if (newMessageAvailable)
     {      
       strcpy(curMessage, newMessage);
@@ -85,4 +90,6 @@ void loop()
     P.displayReset();
   }
   readSerial();
+  if (gTimer2.isReady()) readTime();
+  if (gTimer1.isReady()) *my_turn=false;
 }
