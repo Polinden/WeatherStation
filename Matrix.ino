@@ -4,6 +4,7 @@
 #include <MD_MAX72xx.h>
 #include <SPI.h>
 #include "RTClib.h"
+#include "GyverTimer.h"
 
 #define HARDWARE_TYPE MD_MAX72XX::FC16_HW
 #define MAX_DEVICES 4
@@ -22,6 +23,8 @@ char newMessage[BUF_SIZE] = { "" };
 char daysOfTheWeek[7][4] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 bool newMessageAvailable = true;
 bool my_turn=true;
+GTimer gTimer1(MS, 5000);
+GTimer gTimer2(MS, 60000);
 AltSoftSerial altser;
 
 
