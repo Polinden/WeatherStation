@@ -33,7 +33,6 @@
 
 ### What we'v got:
 <p align="left">
-  <img src="assets/image4.jpg" width="200" title="Screen">
-  <img src="assets/my.gif" width="200" title="Screen">
+  <img src="assets/my1.gif" width="400" title="Screen">
 </p>
 
