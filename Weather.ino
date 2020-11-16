@@ -13,7 +13,7 @@
 
 const char* ssid     = STASSID;
 const char* password = STAPSK;
-const char* url = "https://api.openweathermap.org/data/2.5/weather?q="CITY"&units=metric&appid=****";
+const char* url = "https://api.openweathermap.org/data/2.5/weather?q="CITY"&units=metric&appid=***";
 const char* host = "https://api.openweathermap.org";
 
 GTimer myTimer(MS, EVERY);
@@ -21,6 +21,10 @@ WiFiClientSecure client;
 HTTPClient http; 
 DynamicJsonDocument doc(2400);
 char buffer[500];
+float o_tem=0.0;
+float o_pres=0.0;
+
+
   
 
 
@@ -48,8 +52,10 @@ void pretiPrint(String s){
   float spe=doc["wind"]["speed"].as<float>();
   int tzone=doc["timezone"].as<int>();  
   long timestm=doc["sys"]["sunset"].as<long>()+tzone;  
-  snprintf(buffer, sizeof(buffer), "Hi, Michael! In %s today is %s, temp %.1fC, wind %.1fm/s, %dmmHg, sunset at %d:%d \0", 
-  n.c_str(), w.c_str(), tem, spe, pres, hour(timestm), minute(timestm));     
+  char * s1; if (o_tem>tem) s1="["; if (o_tem<tem) s1="]"; o_tem=tem;
+  char * s2; if (o_pres>pres) s2="["; if (o_pres<pres) s2="]"; o_pres=pres;
+  snprintf(buffer, sizeof(buffer), "Weather in %s is %s, temp %.1f`%s, wind %.1fm/s, %dmmHg%s, # %d:%d \0", 
+  n.c_str(), w.c_str(), tem, s1, spe, pres, s2, hour(timestm), minute(timestm));     
   Serial.println(buffer);  
 }
 
