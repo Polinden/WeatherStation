@@ -6,6 +6,7 @@
 ### We used electronic components:
 <ol>
   <li>ESP-01 <i>(sketch Weather)</i></li>
+  <li>ESP-01 Adapter</i></li>
   <li>Arduino Nano <i>(sketch Matrix)</i></li>
   <li>Led Matrix 8 pieces 8x8</li>
   <li>RTC DS3231</li>
@@ -32,6 +33,11 @@
   <li>ESP also provides a web interface in order you could choose your place (for weather request)</li>
 </ol>
 
+
+### Electrical circuit:
+<p align="left">
+  <img src="assets/my.png" width="400" title="Screen">
+</p>
 
 ### What we'v got:
 <p align="left">
