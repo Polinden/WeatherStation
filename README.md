@@ -33,6 +33,17 @@
   <li>ESP also provides a web interface in order you could choose your place (for weather request)</li>
 </ol>
 
+### To clone this project:
+<ol>
+  <li>Buy all parts</li>
+  <li>Create OpenWeather account and get you API key <i>(Weather scetch)</i></li>
+  <li>Install Arduino IDE and all Libs mentioned above</li>
+  <li>Fill in your WIFI passwords, IP settings, API key<i>(Weather scetch)</i></li>
+  <li>Upload scetches to Nano and ESP-01</li>
+  <li>Assemble the circuit</li>
+  <li>Enjoy!</li>
+</ol>
+
 
 ### Electrical circuit:
 <p align="left">
