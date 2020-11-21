@@ -51,7 +51,8 @@
 </p>
 
 ### What we'v got:
-<p align="left">
+<p align="left">  
   <img src="assets/my1.gif" width="400" title="Screen">
+  <img src="assets/pic3.jpg" width="400" title="Screen">
 </p>
 
