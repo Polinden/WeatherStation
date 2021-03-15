@@ -7,14 +7,17 @@
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <GyverFilters.h>
+#include <NTPClient.h>
+#include <WiFiUdp.h>
 #include "index.html.h"
 
 
-#define STASSID "***"
-#define STAPSK  "***"
+#define STASSID "****"
+#define STAPSK  "****"
 #define EVERY   300000
+#define TIMESYNC   1210000
 #define URL "https://api.openweathermap.org/data/2.5/weather?q="
-#define URL_TAIL "&units=metric&appid=*****"
+#define URL_TAIL "&units=metric&appid=****"
 #define URL_CORE "https://api.openweathermap.org"
 #define CITY "Kyiv"
 #define OTAPAS "***"
@@ -26,7 +29,9 @@ const char* url = URL;
 const char* url_tail = URL_TAIL;
 const char* host = URL_CORE;
 String city {CITY};
-IPAddress ip(192,168,77,226); 
+#define NTPSERV "europe.pool.ntp.org"
+#define TIMESHIFT 7200
+IPAddress ip(192,168,77,229); 
 IPAddress gateway(192,168,77,1);
 IPAddress subnet(255,255,255,0);
 IPAddress primaryDNS(8, 8, 8, 8); 
@@ -36,14 +41,18 @@ IPAddress secondaryDNS(192,168,77,1);
 AsyncWebServer server(80);
 GKalman tempFilter(40, 40, 0.5);
 GKalman presFilter(40, 40, 0.5);
-GTimer myTimer(MS, EVERY);
+GTimer myTimer1(MS, EVERY);
+GTimer myTimer2(MS, TIMESYNC);
 WiFiClientSecure client;
 HTTPClient http; 
 DynamicJsonDocument doc(3000);
+WiFiUDP ntpUDP;
+NTPClient timeClient (ntpUDP, NTPSERV, TIMESHIFT, 60000); 
 char buffer[500];
 float o_tem=0.0;
 float o_pres=0.0;
 bool doReq=false;
+bool doTime=false;
   
 
 void setup() {
@@ -69,9 +78,10 @@ void setup() {
   });  
   server.begin();
   doRequest();
-  ArduinoOTA.setHostname("mish_weather_st"); 
+  ArduinoOTA.setHostname("MishWeather"); 
   ArduinoOTA.setPassword(String(OTAPAS).c_str());
   ArduinoOTA.begin();
+  timeClient.begin();  
 }
 
 
@@ -93,6 +103,36 @@ void pretiPrint(String s){
   Serial.println(buffer);  
 }
 
+
+void timeSync(){
+  snprintf(buffer, sizeof(buffer), "timesync=%04d%02d%02d%02d%02d%02d\0", getYear(), getMonth(), getDate(), timeClient.getHours(), timeClient.getMinutes(), 0);
+  Serial.println(buffer);  
+}  
+
+
+int getYear() {
+  time_t rawtime = timeClient.getEpochTime();
+  struct tm * ti;
+  ti = localtime (&rawtime);
+  int year = ti->tm_year + 1900;
+  return year;
+}
+
+int getMonth() {
+  time_t rawtime = timeClient.getEpochTime();
+  struct tm * ti;
+  ti = localtime (&rawtime);
+  int month = (ti->tm_mon + 1) < 10 ? 0 + (ti->tm_mon + 1) : (ti->tm_mon + 1);
+  return month;
+}
+
+int getDate() {
+  time_t rawtime = timeClient.getEpochTime();
+  struct tm * ti;
+  ti = localtime (&rawtime);
+  int month = (ti->tm_mday) < 10 ? 0 + (ti->tm_mday) : (ti->tm_mday);  
+  return month;
+}
 
 void doRequest(){  
   client.setInsecure();
@@ -120,5 +160,7 @@ void doRequest(){
 
 void loop() {
   ArduinoOTA.handle();  
-  if (myTimer.isReady() || doReq) doRequest();
+  if (myTimer1.isReady() || doReq) doRequest(); 
+  if (myTimer2.isReady() || doReq) timeSync();
+  doTime=timeClient.update();
 }
