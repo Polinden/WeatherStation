@@ -12,12 +12,12 @@
 #include "index.html.h"
 
 
-#define STASSID "****"
-#define STAPSK  "****"
+#define STASSID "***"
+#define STAPSK  "***"
 #define EVERY   300000
-#define TIMESYNC   1210000
+#define TIMESYNC 1811111
 #define URL "https://api.openweathermap.org/data/2.5/weather?q="
-#define URL_TAIL "&units=metric&appid=****"
+#define URL_TAIL "&units=metric&appid=***"
 #define URL_CORE "https://api.openweathermap.org"
 #define CITY "Kyiv"
 #define OTAPAS "***"
@@ -74,6 +74,10 @@ void setup() {
   server.on("/set", HTTP_GET, [](AsyncWebServerRequest *request){
       if (request->hasParam("city")) city = request->getParam("city")->value();        
       doReq=true;
+      request->redirect("/");   
+  });  
+  server.on("/reset", HTTP_GET, [](AsyncWebServerRequest *request){
+      ESP.restart();
       request->redirect("/");   
   });  
   server.begin();
